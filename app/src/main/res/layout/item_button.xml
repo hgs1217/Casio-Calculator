@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Button xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="72dp"
+    android:layout_height="50dp"
+    android:background="@drawable/shape_button_selector"
+    android:text="9"
+    android:textColor="@color/colorWhite"
+    android:textSize="18sp"
+    android:textAllCaps="false">
+
+</Button>

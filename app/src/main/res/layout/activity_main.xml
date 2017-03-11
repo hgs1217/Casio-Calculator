@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="16dp"
+    android:paddingTop="16dp"
+    android:orientation="vertical"
+    tools:context="calculator.com.calculator.MainActivity">
+
+    <EditText
+        android:id="@+id/edit_formula"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:gravity="left"
+        android:textSize="40sp"
+        android:textColor="@color/colorWhite"
+        android:text="1234+4321"/>
+
+    <EditText
+        android:id="@+id/edit_show"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:gravity="right"
+        android:enabled="false"
+        android:textSize="40sp"
+        android:textColor="@color/colorWhite"
+        android:text="5555"/>
+    
+    <ImageView
+        android:layout_marginTop="192dp"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#888888"/>
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <include
+            android:id="@+id/button_7"
+            layout="@layout/item_button"/>
+
+        <include
+            android:id="@+id/button_8"
+            layout="@layout/item_button"/>
+
+        <include
+            android:id="@+id/button_9"
+            layout="@layout/item_button"/>
+
+        <include
+            android:id="@+id/button_del"
+            layout="@layout/item_button_orange"/>
+
+        <include
+            android:id="@+id/button_ac"
+            layout="@layout/item_button_orange"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <include
+            android:id="@+id/button_4"
+            layout="@layout/item_button"/>
+
+        <include
+            android:id="@+id/button_5"
+            layout="@layout/item_button"/>
+
+        <include
+            android:id="@+id/button_6"
+            layout="@layout/item_button"/>
+
+        <include
+            android:id="@+id/button_multiply"
+            layout="@layout/item_button"/>
+
+        <include
+            android:id="@+id/button_divide"
+            layout="@layout/item_button"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <include
+            android:id="@+id/button_1"
+            layout="@layout/item_button"/>
+
+        <include
+            android:id="@+id/button_2"
+            layout="@layout/item_button"/>
+
+        <include
+            android:id="@+id/button_3"
+            layout="@layout/item_button"/>
+
+        <include
+            android:id="@+id/button_add"
+            layout="@layout/item_button"/>
+
+        <include
+            android:id="@+id/button_minus"
+            layout="@layout/item_button"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <include
+            android:id="@+id/button_0"
+            layout="@layout/item_button"/>
+
+        <include
+            android:id="@+id/button_point"
+            layout="@layout/item_button"/>
+
+        <include
+            android:id="@+id/button_10x"
+            layout="@layout/item_button"/>
+
+        <include
+            android:id="@+id/button_ans"
+            layout="@layout/item_button"/>
+
+        <include
+            android:id="@+id/button_equal"
+            layout="@layout/item_button"/>
+
+    </LinearLayout>
+
+</LinearLayout>
