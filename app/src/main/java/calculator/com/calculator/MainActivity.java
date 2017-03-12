@@ -62,6 +62,16 @@ public class MainActivity extends AppCompatActivity {
     Button buttonAns;
     @BindView(R2.id.button_equal)
     Button buttonEqual;
+    @BindView(R2.id.button_mod)
+    Button buttonMod;
+    @BindView(R2.id.button_get_int)
+    Button buttonGetInt;
+    @BindView(R2.id.button_left_bracket)
+    Button buttonLeftBracket;
+    @BindView(R2.id.button_right_bracket)
+    Button buttonRightBracket;
+    @BindView(R2.id.button_power)
+    Button buttonPower;
 
     private static final char SIGN_NUM_SEPARATOR = ',';
     private static final char SIGN_POINT = '.';
@@ -70,13 +80,16 @@ public class MainActivity extends AppCompatActivity {
     private static final char SIGN_MINUS = '-';
     private static final char SIGN_MULTIPLY = '*';
     private static final char SIGN_DIVIDE = '/';
+    private static final char SIGN_MOD = '%';
+    private static final char SIGN_POWER = '^';
+    private static final char SIGN_GET_INT = '|';
 
     private Button[] viewsSameInExp;
     private Button[] viewsDiffInExp;
     private String[] stringsSameInExp;
     private String[] stringsDiffInExp;
-    private String[] signOrigin = new String[] {"Ans", "×", "÷"};
-    private char[] signReplace = new char[] {SIGN_ANS, SIGN_MULTIPLY, SIGN_DIVIDE};
+    private String[] signOrigin = new String[] {"Ans", "×", "÷", "\\[", "]", "Mod"};
+    private char[] signReplace = new char[] {SIGN_ANS, SIGN_MULTIPLY, SIGN_DIVIDE, SIGN_GET_INT, ' ', SIGN_MOD};
 
     private double answer = 0;
 
@@ -95,11 +108,12 @@ public class MainActivity extends AppCompatActivity {
     private void initData() {
         viewsSameInExp = new Button[] {button0, button1, button2, button3, button4, button5,
                                     button6, button7, button8, button9, buttonPlus, buttonMinus,
-                                    buttonMultiply, buttonDivide, buttonPoint, buttonAns};
-        viewsDiffInExp = new Button[] {buttonDel, buttonAc, button10x, buttonEqual};
+                                    buttonMultiply, buttonDivide, buttonPoint, buttonAns, buttonMod,
+                                    buttonLeftBracket, buttonRightBracket, buttonPower};
+        viewsDiffInExp = new Button[] {buttonDel, buttonAc, button10x, buttonEqual, buttonGetInt};
         stringsSameInExp = new String[] {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "+",
-                                    "-", "×", "÷", ".", "Ans"};
-        stringsDiffInExp = new String[] {"DEL", "AC", "×10^x", "="};
+                                    "-", "×", "÷", ".", "Ans", "Mod", "(", ")", "^"};
+        stringsDiffInExp = new String[] {"DEL", "AC", "×10^x", "=", "[ ]"};
     }
 
     private void initText() {
@@ -134,12 +148,15 @@ public class MainActivity extends AppCompatActivity {
             });
         }
         buttonDel.setOnClickListener((View view) -> {
+            /* 多字符符号需进行额外设定 */
             int index = editFormula.getSelectionStart();
             Editable editable = editFormula.getText();
             if (index > 0) {
                 String editStr = editable.toString();
                 if (index > 2) {
                     if (editStr.substring(index - 3, index).equals("Ans")) {
+                        editable.delete(index - 3, index);
+                    } else if (editStr.substring(index - 3, index).equals("Mod")) {
                         editable.delete(index - 3, index);
                     } else {
                         editable.delete(index - 1, index);
@@ -163,6 +180,13 @@ public class MainActivity extends AppCompatActivity {
             String postfixExp = initExpression(editFormula.getText().toString());
             editShow.setText(calculate(postfixExp));
         });
+        buttonGetInt.setOnClickListener((View view) -> {
+            int index = editFormula.getSelectionStart();
+            Editable editable = editFormula.getText();
+            editable.insert(index, "[]");
+            index = editFormula.getSelectionStart();
+            editFormula.setSelection(index - 1);
+        });
     }
 
     private String initExpression(String exp) {
@@ -175,39 +199,53 @@ public class MainActivity extends AppCompatActivity {
         for (int i=0; i<signOrigin.length; ++i) {
             exp = exp.replaceAll(signOrigin[i], String.valueOf(signReplace[i]));
         }
+        // 减号替换为加号和负号
+        exp = exp.replaceAll("-", "+-");
+        // 第一位是+时添0
+        if (exp.charAt(0) == SIGN_PLUS) {
+            exp = "0" + exp;
+        }
+
         Log.d("TEST Exp", exp);
-        for (int i=0; i<exp.length(); ++i) {
-            char s = exp.charAt(i);
-            if (s >= '0' && s <= '9' || s == SIGN_POINT) {
-                postfixExp = postfixExp + s;
-                canNumEnd = true;
-            } else {
-                if (canNumEnd) {
-                    postfixExp = postfixExp + SIGN_NUM_SEPARATOR;
-                }
-                canNumEnd = false;
-                if (s == SIGN_ANS) {
+        try {
+            for (int i=0; i<exp.length(); ++i) {
+                char s = exp.charAt(i);
+                if (s >= '0' && s <= '9' || s == SIGN_POINT || s == SIGN_MINUS) {
                     postfixExp = postfixExp + s;
-                } else if (s == '(') {
-                    stack.push(String.valueOf(s));
-                } else if (s == SIGN_PLUS || s == SIGN_MINUS || s == SIGN_MULTIPLY || s == SIGN_DIVIDE) {
-                    while (true) {
-                        if (stack.isEmpty() || stack.peek().equals("(") ||
-                                operatorComparator(String.valueOf(s), stack.peek()) > 0) {
-                            stack.push(String.valueOf(s));
-                            break;
-                        } else {
+                    canNumEnd = true;
+                } else {
+                    if (canNumEnd) {
+                        postfixExp = postfixExp + SIGN_NUM_SEPARATOR;
+                    }
+                    canNumEnd = false;
+                    if (s == SIGN_ANS) {
+                        postfixExp = postfixExp + s;
+                    } else if (s == '(') {
+                        stack.push(String.valueOf(s));
+                    } else if (s == SIGN_PLUS || s == SIGN_MULTIPLY || s == SIGN_DIVIDE
+                            || s == SIGN_POWER || s == SIGN_MOD || s == SIGN_GET_INT) {
+                        while (true) {
+                            if (stack.isEmpty() || stack.peek().equals("(") ||
+                                    operatorComparator(String.valueOf(s), stack.peek()) > 0) {
+                                stack.push(String.valueOf(s));
+                                break;
+                            } else {
+                                postfixExp = postfixExp + stack.pop();
+                            }
+                        }
+                    } else if (s == ')') {
+                        while (!stack.peek().equals("(")) {
                             postfixExp = postfixExp + stack.pop();
                         }
+                        stack.pop();
                     }
-                } else if (s == ')') {
-                    while (!stack.peek().equals("(")) {
-                        postfixExp = postfixExp + stack.pop();
-                    }
-                    stack.pop();
                 }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Syntax Error";
         }
+
         while (!stack.isEmpty()) {
             if (canNumEnd) {
                 postfixExp = postfixExp + SIGN_NUM_SEPARATOR;
@@ -224,49 +262,71 @@ public class MainActivity extends AppCompatActivity {
         Stack<Double> stack = new Stack<>();
         String tmpNum = "";
         Double a, b;
-        for (int i=0; i<postfixExp.length(); ++i) {
-            char s = postfixExp.charAt(i);
-            if (s >= '0' && s <= '9' || s == SIGN_POINT) {
-                tmpNum = tmpNum + s;
-            } else {
-                switch (s) {
-                    case SIGN_NUM_SEPARATOR:
-                        Log.d("TEST", String.valueOf(Double.parseDouble(tmpNum)));
-                        stack.push(Double.parseDouble(tmpNum));
-                        tmpNum = "";
-                        break;
-                    case SIGN_ANS:
-                        stack.push(answer);
-                        break;
-                    case SIGN_PLUS:
-                        Log.d("TEST", String.valueOf(stack.size()));
-                        b = stack.pop();
-                        a = stack.pop();
-                        stack.push(a+b);
-                        break;
-                    case SIGN_MINUS:
-                        b = stack.pop();
-                        a = stack.pop();
-                        stack.push(a-b);
-                        break;
-                    case SIGN_MULTIPLY:
-                        b = stack.pop();
-                        a = stack.pop();
-                        stack.push(a*b);
-                        break;
-                    case SIGN_DIVIDE:
-                        b = stack.pop();
-                        a = stack.pop();
-                        stack.push(a/b);
-                        break;
-                    default:
-                        Log.e("SIGN ERROR", "");
-                        break;
+        try {
+            for (int i=0; i<postfixExp.length(); ++i) {
+                char s = postfixExp.charAt(i);
+                if (s >= '0' && s <= '9' || s == SIGN_POINT || s == SIGN_MINUS) {
+                    tmpNum = tmpNum + s;
+                } else {
+                    switch (s) {
+                        case SIGN_NUM_SEPARATOR:
+                            stack.push(Double.parseDouble(tmpNum));
+                            tmpNum = "";
+                            break;
+                        case SIGN_ANS:
+                            stack.push(answer);
+                            break;
+                        case SIGN_PLUS:
+                            b = stack.pop();
+                            a = stack.pop();
+                            stack.push(a+b);
+                            break;
+                        case SIGN_MULTIPLY:
+                            b = stack.pop();
+                            a = stack.pop();
+                            stack.push(a*b);
+                            break;
+                        case SIGN_DIVIDE:
+                            b = stack.pop();
+                            a = stack.pop();
+                            stack.push(a/b);
+                            break;
+                        case SIGN_MOD:
+                            b = stack.pop();
+                            a = stack.pop();
+                            int intA = a.intValue(), intB = b.intValue();
+                            if (intA != a || intB != b) {
+                                return "Mod Error";
+                            }
+                            double m = Double.valueOf(intA % intB);
+                            stack.push(m);
+                            break;
+                        case SIGN_POWER:
+                            b = stack.pop();
+                            a = stack.pop();
+                            stack.push(Math.pow(a, b));
+                            break;
+                        case SIGN_GET_INT:
+                            a = stack.pop();
+                            b = Double.valueOf(a.intValue());
+                            stack.push(b);
+                            break;
+                        default:
+                            Log.e("SIGN ERROR", "");
+                            break;
+                    }
                 }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Syntax Error";
         }
+
         if (stack.size() == 1) {
             answer = stack.pop();
+            if ((int)answer == answer) {
+                return String.valueOf((int)answer);
+            }
             return String.valueOf(answer);
         }
         return "Syntax Error";
@@ -274,15 +334,23 @@ public class MainActivity extends AppCompatActivity {
 
     private int operatorComparator(String a, String b) {
         int x=0, y=0;
-        if (a.equals("+") || a.equals("-")) {
+        if (a.equals(String.valueOf(SIGN_GET_INT))) {
             x = 1;
-        } else if (a.equals("*") || a.equals("/")) {
+        } else if (a.equals("+")) {
             x = 2;
+        } else if (a.equals("*") || a.equals("/")) {
+            x = 3;
+        } else if (a.equals("^")) {
+            x = 5;
         }
-        if (b.equals("+") || b.equals("-")) {
+        if (b.equals(String.valueOf(SIGN_GET_INT))) {
             y = 1;
-        } else if (b.equals("*") || b.equals("/")) {
+        } else if (b.equals("+")) {
             y = 2;
+        } else if (b.equals("*") || b.equals("/")) {
+            y = 3;
+        } else if (b.equals("^")) {
+            y = 5;
         }
         return (int)Math.signum(x-y);
     }

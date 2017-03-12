@@ -33,9 +33,36 @@
         android:textSize="40sp"
         android:textColor="@color/colorWhite"
         android:text="0"/>
-    
+
+    <LinearLayout
+        android:layout_marginTop="132dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <include
+            android:id="@+id/button_mod"
+            layout="@layout/item_button_blue"/>
+
+        <include
+            android:id="@+id/button_get_int"
+            layout="@layout/item_button_blue"/>
+
+        <include
+            android:id="@+id/button_left_bracket"
+            layout="@layout/item_button_blue"/>
+
+        <include
+            android:id="@+id/button_right_bracket"
+            layout="@layout/item_button_blue"/>
+
+        <include
+            android:id="@+id/button_power"
+            layout="@layout/item_button_blue"/>
+
+    </LinearLayout>
+
     <ImageView
-        android:layout_marginTop="182dp"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#888888"/>
@@ -86,11 +113,11 @@
 
         <include
             android:id="@+id/button_multiply"
-            layout="@layout/item_button"/>
+            layout="@layout/item_button_blue"/>
 
         <include
             android:id="@+id/button_divide"
-            layout="@layout/item_button"/>
+            layout="@layout/item_button_blue"/>
 
     </LinearLayout>
 
@@ -113,11 +140,11 @@
 
         <include
             android:id="@+id/button_plus"
-            layout="@layout/item_button"/>
+            layout="@layout/item_button_blue"/>
 
         <include
             android:id="@+id/button_minus"
-            layout="@layout/item_button"/>
+            layout="@layout/item_button_blue"/>
 
     </LinearLayout>
 
@@ -132,19 +159,19 @@
 
         <include
             android:id="@+id/button_point"
-            layout="@layout/item_button"/>
+            layout="@layout/item_button_blue"/>
 
         <include
             android:id="@+id/button_10x"
-            layout="@layout/item_button"/>
+            layout="@layout/item_button_blue"/>
 
         <include
             android:id="@+id/button_ans"
-            layout="@layout/item_button"/>
+            layout="@layout/item_button_yellow"/>
 
         <include
             android:id="@+id/button_equal"
-            layout="@layout/item_button"/>
+            layout="@layout/item_button_yellow"/>
 
     </LinearLayout>
 
