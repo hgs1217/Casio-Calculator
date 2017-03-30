@@ -23,12 +23,11 @@
 
     <EditText
         android:id="@+id/edit_show"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="75dp"
         android:paddingLeft="15dp"
         android:paddingRight="15dp"
-        android:gravity="right"
-        android:enabled="false"
+        android:layout_gravity="right"
         android:singleLine="true"
         android:textSize="40sp"
         android:textColor="@color/colorWhite"

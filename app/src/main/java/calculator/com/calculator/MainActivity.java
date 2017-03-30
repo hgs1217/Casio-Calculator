@@ -17,65 +17,64 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
 
-    @BindView(R2.id.edit_formula)
+    @BindView(R.id.edit_formula)
     EditText editFormula;
-    @BindView(R2.id.edit_show)
+    @BindView(R.id.edit_show)
     EditText editShow;
 
-    @BindView(R2.id.button_7)
+    @BindView(R.id.button_7)
     Button button7;
-    @BindView(R2.id.button_8)
+    @BindView(R.id.button_8)
     Button button8;
-    @BindView(R2.id.button_9)
+    @BindView(R.id.button_9)
     Button button9;
-    @BindView(R2.id.button_del)
+    @BindView(R.id.button_del)
     Button buttonDel;
-    @BindView(R2.id.button_ac)
+    @BindView(R.id.button_ac)
     Button buttonAc;
-    @BindView(R2.id.button_4)
+    @BindView(R.id.button_4)
     Button button4;
-    @BindView(R2.id.button_5)
+    @BindView(R.id.button_5)
     Button button5;
-    @BindView(R2.id.button_6)
+    @BindView(R.id.button_6)
     Button button6;
-    @BindView(R2.id.button_multiply)
+    @BindView(R.id.button_multiply)
     Button buttonMultiply;
-    @BindView(R2.id.button_divide)
+    @BindView(R.id.button_divide)
     Button buttonDivide;
-    @BindView(R2.id.button_1)
+    @BindView(R.id.button_1)
     Button button1;
-    @BindView(R2.id.button_2)
+    @BindView(R.id.button_2)
     Button button2;
-    @BindView(R2.id.button_3)
+    @BindView(R.id.button_3)
     Button button3;
-    @BindView(R2.id.button_plus)
+    @BindView(R.id.button_plus)
     Button buttonPlus;
-    @BindView(R2.id.button_minus)
+    @BindView(R.id.button_minus)
     Button buttonMinus;
-    @BindView(R2.id.button_0)
+    @BindView(R.id.button_0)
     Button button0;
-    @BindView(R2.id.button_point)
+    @BindView(R.id.button_point)
     Button buttonPoint;
-    @BindView(R2.id.button_10x)
+    @BindView(R.id.button_10x)
     Button button10x;
-    @BindView(R2.id.button_ans)
+    @BindView(R.id.button_ans)
     Button buttonAns;
-    @BindView(R2.id.button_equal)
+    @BindView(R.id.button_equal)
     Button buttonEqual;
-    @BindView(R2.id.button_mod)
+    @BindView(R.id.button_mod)
     Button buttonMod;
-    @BindView(R2.id.button_get_int)
+    @BindView(R.id.button_get_int)
     Button buttonGetInt;
-    @BindView(R2.id.button_left_bracket)
+    @BindView(R.id.button_left_bracket)
     Button buttonLeftBracket;
-    @BindView(R2.id.button_right_bracket)
+    @BindView(R.id.button_right_bracket)
     Button buttonRightBracket;
-    @BindView(R2.id.button_power)
+    @BindView(R.id.button_power)
     Button buttonPower;
 
     private static final char SIGN_NUM_SEPARATOR = ',';
     private static final char SIGN_POINT = '.';
-    private static final char SIGN_ANS = '[';
     private static final char SIGN_PLUS = '+';
     private static final char SIGN_MINUS = '-';
     private static final char SIGN_MULTIPLY = '*';
@@ -84,14 +83,15 @@ public class MainActivity extends AppCompatActivity {
     private static final char SIGN_POWER = '^';
     private static final char SIGN_GET_INT = '|';
 
+    private double answer = 0;
+
     private Button[] viewsSameInExp;
     private Button[] viewsDiffInExp;
     private String[] stringsSameInExp;
     private String[] stringsDiffInExp;
-    private String[] signOrigin = new String[] {"Ans", "×", "÷", "\\[", "]", "Mod"};
-    private char[] signReplace = new char[] {SIGN_ANS, SIGN_MULTIPLY, SIGN_DIVIDE, SIGN_GET_INT, ' ', SIGN_MOD};
-
-    private double answer = 0;
+    private String[] signOrigin = new String[] {"×", "÷", "\\[", "]", "Mod"};
+    private String[] signReplace = new String[] {String.valueOf(SIGN_MULTIPLY), String.valueOf(SIGN_DIVIDE),
+            "("+SIGN_GET_INT, ")", String.valueOf(SIGN_MOD)};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
             setSoftInputShownOnFocus = cls.getMethod("setShowSoftInputOnFocus", boolean.class);
             setSoftInputShownOnFocus.setAccessible(true);
             setSoftInputShownOnFocus.invoke(editFormula, false);
+            setSoftInputShownOnFocus.invoke(editShow, false);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -142,27 +143,31 @@ public class MainActivity extends AppCompatActivity {
         for (int i=0; i<viewsSameInExp.length; ++i) {
             final String exp = stringsSameInExp[i];
             viewsSameInExp[i].setOnClickListener((View view) -> {
-                int index = editFormula.getSelectionStart();
-                Editable editable = editFormula.getText();
-                editable.insert(index, exp);
+                if (editFormula.hasFocus()) {
+                    int index = editFormula.getSelectionStart();
+                    Editable editable = editFormula.getText();
+                    editable.insert(index, exp);
+                }
             });
         }
         buttonDel.setOnClickListener((View view) -> {
             /* 多字符符号需进行额外设定 */
-            int index = editFormula.getSelectionStart();
-            Editable editable = editFormula.getText();
-            if (index > 0) {
-                String editStr = editable.toString();
-                if (index > 2) {
-                    if (editStr.substring(index - 3, index).equals("Ans")) {
-                        editable.delete(index - 3, index);
-                    } else if (editStr.substring(index - 3, index).equals("Mod")) {
-                        editable.delete(index - 3, index);
+            if (editFormula.hasFocus()) {
+                int index = editFormula.getSelectionStart();
+                Editable editable = editFormula.getText();
+                if (index > 0) {
+                    String editStr = editable.toString();
+                    if (index > 2) {
+                        if (editStr.substring(index - 3, index).equals("Ans")) {
+                            editable.delete(index - 3, index);
+                        } else if (editStr.substring(index - 3, index).equals("Mod")) {
+                            editable.delete(index - 3, index);
+                        } else {
+                            editable.delete(index - 1, index);
+                        }
                     } else {
                         editable.delete(index - 1, index);
                     }
-                } else {
-                    editable.delete(index - 1, index);
                 }
             }
         });
@@ -170,47 +175,92 @@ public class MainActivity extends AppCompatActivity {
             editFormula.setText("");
         });
         button10x.setOnClickListener((View view) -> {
-            int index = editFormula.getSelectionStart();
-            Editable editable = editFormula.getText();
-            editable.insert(index, "×(10^)");
-            index = editFormula.getSelectionStart();
-            editFormula.setSelection(index - 1);
+            if (editFormula.hasFocus()) {
+                int index = editFormula.getSelectionStart();
+                Editable editable = editFormula.getText();
+                editable.insert(index, "×(10^)");
+                index = editFormula.getSelectionStart();
+                editFormula.setSelection(index - 1);
+            }
         });
         buttonEqual.setOnClickListener((View view) -> {
-            String postfixExp = initExpression(editFormula.getText().toString());
-            editShow.setText(calculate(postfixExp));
+            if (editFormula.hasFocus()) {
+                String postfixExp = initExpression(editFormula.getText().toString());
+                editShow.setText(calculate(postfixExp));
+            }
         });
         buttonGetInt.setOnClickListener((View view) -> {
-            int index = editFormula.getSelectionStart();
-            Editable editable = editFormula.getText();
-            editable.insert(index, "[]");
-            index = editFormula.getSelectionStart();
-            editFormula.setSelection(index - 1);
+            if (editFormula.hasFocus()) {
+                int index = editFormula.getSelectionStart();
+                Editable editable = editFormula.getText();
+                editable.insert(index, "[]");
+                index = editFormula.getSelectionStart();
+                editFormula.setSelection(index - 1);
+            }
         });
     }
 
     private String initExpression(String exp) {
         /* 将中缀表达式改成后缀表达式 */
 
-        String postfixExp = "";
-        boolean canNumEnd = false;
+        String postfixExp = "", excExp = "";
+        boolean canNumEnd = false; // 数字结束的判断
+        boolean plusNeedZero = true; // 加号前补0的判断
+        boolean canRightBracket = false; // 右括号是否合法的判断
+        int immediateBracket = 0; // 减号后紧跟括号的数量
         Stack<String> stack = new Stack<>();
+        // 转化Ans为数字
+        exp = exp.replaceAll("Ans", String.valueOf(answer));
         // 转化特殊符号为内部符号形式保存
         for (int i=0; i<signOrigin.length; ++i) {
-            exp = exp.replaceAll(signOrigin[i], String.valueOf(signReplace[i]));
+            exp = exp.replaceAll(signOrigin[i], signReplace[i]);
         }
+        // 双减号替换为加号
+        exp = exp.replaceAll("--", "+");
         // 减号替换为加号和负号
         exp = exp.replaceAll("-", "+-");
-        // 第一位是+时添0
-        if (exp.charAt(0) == SIGN_PLUS) {
-            exp = "0" + exp;
+        // 当+前为数字、小数点或右括号时，不用补（0 ）；其他情况，需补（0 ），其中右括号加在+后的数字后
+        for (int i=0; i<exp.length(); ++i) {
+            char s = exp.charAt(i);
+            if (s >= '0' && s <= '9' || s == SIGN_POINT) {
+                plusNeedZero = false;
+                canNumEnd = true;
+            } else {
+                if (canNumEnd && canRightBracket && immediateBracket == 0) {
+                    excExp = excExp + ")";
+                    canRightBracket = false;
+                }
+                if (s == ')') {
+                    plusNeedZero = false;
+                    immediateBracket--;
+                    if (canRightBracket && immediateBracket == 0) {
+                        excExp = excExp + ")";
+                        canRightBracket = false;
+                    }
+                } else if (s == '(') {
+                    immediateBracket++;
+                } else if (s == SIGN_PLUS) {
+                    if (plusNeedZero) {
+                        excExp = excExp + "(0";
+                        canRightBracket = true;
+                    }
+                    plusNeedZero = true;
+                } else {
+                    plusNeedZero = true;
+                }
+                canNumEnd = false;
+            }
+            excExp = excExp + s;
+        }
+        if (canNumEnd && canRightBracket) {
+            excExp = excExp + ")";
         }
 
-        Log.d("TEST Exp", exp);
+        Log.d("TEST Exp", excExp);
         try {
-            for (int i=0; i<exp.length(); ++i) {
-                char s = exp.charAt(i);
-                if (s >= '0' && s <= '9' || s == SIGN_POINT || s == SIGN_MINUS) {
+            for (int i=0; i<excExp.length(); ++i) {
+                char s = excExp.charAt(i);
+                if (s >= '0' && s <= '9' || s == SIGN_POINT) {
                     postfixExp = postfixExp + s;
                     canNumEnd = true;
                 } else {
@@ -218,11 +268,9 @@ public class MainActivity extends AppCompatActivity {
                         postfixExp = postfixExp + SIGN_NUM_SEPARATOR;
                     }
                     canNumEnd = false;
-                    if (s == SIGN_ANS) {
-                        postfixExp = postfixExp + s;
-                    } else if (s == '(') {
+                    if (s == '(') {
                         stack.push(String.valueOf(s));
-                    } else if (s == SIGN_PLUS || s == SIGN_MULTIPLY || s == SIGN_DIVIDE
+                    } else if (s == SIGN_PLUS || s == SIGN_MINUS || s == SIGN_MULTIPLY || s == SIGN_DIVIDE
                             || s == SIGN_POWER || s == SIGN_MOD || s == SIGN_GET_INT) {
                         while (true) {
                             if (stack.isEmpty() || stack.peek().equals("(") ||
@@ -246,11 +294,10 @@ public class MainActivity extends AppCompatActivity {
             return "Syntax Error";
         }
 
+        if (canNumEnd) {
+            postfixExp = postfixExp + SIGN_NUM_SEPARATOR;
+        }
         while (!stack.isEmpty()) {
-            if (canNumEnd) {
-                postfixExp = postfixExp + SIGN_NUM_SEPARATOR;
-            }
-            canNumEnd = false;
             postfixExp = postfixExp + stack.pop();
         }
         Log.d("TEST PostfixExp", postfixExp);
@@ -265,21 +312,24 @@ public class MainActivity extends AppCompatActivity {
         try {
             for (int i=0; i<postfixExp.length(); ++i) {
                 char s = postfixExp.charAt(i);
-                if (s >= '0' && s <= '9' || s == SIGN_POINT || s == SIGN_MINUS) {
+                if (s >= '0' && s <= '9' || s == SIGN_POINT) {
                     tmpNum = tmpNum + s;
                 } else {
                     switch (s) {
                         case SIGN_NUM_SEPARATOR:
-                            stack.push(Double.parseDouble(tmpNum));
+                            if (tmpNum.length() > 0) {
+                                stack.push(Double.parseDouble(tmpNum));
+                            }
                             tmpNum = "";
-                            break;
-                        case SIGN_ANS:
-                            stack.push(answer);
                             break;
                         case SIGN_PLUS:
                             b = stack.pop();
                             a = stack.pop();
                             stack.push(a+b);
+                            break;
+                        case SIGN_MINUS:
+                            a = stack.pop();
+                            stack.push(-a);
                             break;
                         case SIGN_MULTIPLY:
                             b = stack.pop();
@@ -313,7 +363,7 @@ public class MainActivity extends AppCompatActivity {
                             break;
                         default:
                             Log.e("SIGN ERROR", "");
-                            break;
+                            return "Syntax Error";
                     }
                 }
             }
@@ -342,6 +392,8 @@ public class MainActivity extends AppCompatActivity {
             x = 3;
         } else if (a.equals("^")) {
             x = 5;
+        } else if (a.equals("-")) {
+            x = 6;
         }
         if (b.equals(String.valueOf(SIGN_GET_INT))) {
             y = 1;
@@ -351,6 +403,8 @@ public class MainActivity extends AppCompatActivity {
             y = 3;
         } else if (b.equals("^")) {
             y = 5;
+        } else if (b.equals("-")) {
+            y = 6;
         }
         return (int)Math.signum(x-y);
     }
